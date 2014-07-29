@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
@@ -30,6 +31,8 @@ public class HeartyService extends Service implements DataApi.DataListener,
     private static final String STEP_COUNT_PATH = "/step-count";
     private static final String STEP_COUNT_KEY = "step-count";
 
+    private static int reconnectWaitTime = 5 * 1000;
+
     // Store the current request type (ADD or REMOVE)
     private REQUEST_TYPE mRequestType;
 
@@ -39,7 +42,7 @@ public class HeartyService extends Service implements DataApi.DataListener,
         ADD, REMOVE
     }
 
-    public static final String TAG = "StravaStartService";
+    public static final String TAG = "HeartyService";
 
     /*
      *  Intent filter for incoming broadcasts from the
@@ -145,12 +148,41 @@ public class HeartyService extends Service implements DataApi.DataListener,
     @Override
     public void onConnectionSuspended(int i) {
         Log.d(TAG, "onConnectionSuspended(): Connection to Google API client was suspended");
+        new DelayConnect().execute();
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.e(TAG, "onConnectionFailed(): Failed to connect, with result: " + connectionResult);
-
+        new DelayConnect().execute();
     }
 
+    private class DelayConnect extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            if (mGoogleApiClient.isConnected())
+                return null;
+
+            reconnectWaitTime = 2 * reconnectWaitTime;
+
+            if (reconnectWaitTime > 5 * 60 * 1000) {
+                reconnectWaitTime = 5 * 1000;
+            }
+
+            try {
+                Thread.sleep(reconnectWaitTime);
+            } catch (InterruptedException e) {
+                Log.w(TAG, "not sleepy", e);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void param) {
+            if (!mGoogleApiClient.isConnected())
+                mGoogleApiClient.connect();
+        }
+    }
 }

@@ -25,7 +25,7 @@ public class StepsFrag extends Fragment implements Reporter {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.steps, container, false);
         tv = (TextView) rootView.findViewById(R.id.steps);
-
+        tv.setText(String.valueOf(Steps.getLastSteps()));
         return rootView;
     }
 
