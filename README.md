@@ -1,6 +1,6 @@
 # HeartyAndroid
 
-This is the Android app for the Hearty.io service. It currently has 
+This is the Android app for the [Hearty.io](https://github.com/emil10001/Hearty.io) service. It currently has 
 support for step tracking on Android Wear, activity detection, and 
 heart rate monitoring via bluetooth is nearly complete.
 
