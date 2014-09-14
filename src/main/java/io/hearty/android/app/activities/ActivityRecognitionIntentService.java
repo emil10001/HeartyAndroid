@@ -102,7 +102,7 @@ public class ActivityRecognitionIntentService extends IntentService {
                     }
                 }
 
-                sendNotification(mode);
+//                sendNotification(mode);
                 Witness.notify(new HeartyActivity(mode, mostProbableActivity));
             }
         }
